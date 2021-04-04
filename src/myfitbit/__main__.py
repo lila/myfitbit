@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+"""
+Usage:
+  myfitbit [options] steps [--range=<period>]
+  myfitbit -h | --help | --version
+
+Options:
+  --range=period    either 1d, 1w, or 1m [default: 1d]
+  --debug           Show debug info
+  -h --help         Show this screen.
+  --version         Show version.
+"""
 
 import os
 import sys
@@ -7,11 +18,14 @@ import cherrypy
 import threading
 import traceback
 import webbrowser
+import datetime
 
 from urllib.parse import urlparse
 from base64 import b64encode
 from fitbit.api import Fitbit
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
+from docopt import docopt
+
 
 # Environment constants
 FITBIT_DIR = "./"
@@ -96,6 +110,7 @@ class OAuth2Server:
             threading.Timer(1, cherrypy.engine.exit).start()
 
 def savetoken(dict):
+    print("refreshing token")
     with open(TOKEN_FILE, 'w') as outfile:
         credentials_as_dict = {
             'access_token': dict['access_token'],
@@ -106,6 +121,14 @@ def savetoken(dict):
     
 
 def main(args=None):
+
+    arguments = docopt(__doc__, version='v1.0.0') 
+    if arguments['--debug']:
+        print(arguments)
+    if arguments['--help']:
+        print(__doc__)
+        quit()
+    
     if not os.path.exists(FITBIT_DIR):
       os.makedirs(FITBIT_DIR)
 
@@ -136,8 +159,11 @@ def main(args=None):
     
     fitbit = Fitbit(**client, refresh_cb=savetoken)
 
-    steps = fitbit.activities()['summary']['steps']
-    print(f'steps = {steps}')
+    today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
+
+    steps = fitbit.time_series('activities/steps', base_date=today, period=arguments['--range'])
+    print(sum(int(d['value']) for d in steps['activities-steps']))
+
 
 
 def do_main():
@@ -152,4 +178,4 @@ def do_main():
 
 
 if __name__ == '__main__':
-  main(sys.argv)
+    main(sys.argv)
