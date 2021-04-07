@@ -5,7 +5,7 @@ import json
 from fitbit.api import Fitbit
 
 # internal imports
-import oauthserver
+import myfitbit.oauthserver as oauthserver
 
 # Environment constants
 FITBIT_DIR = "./"

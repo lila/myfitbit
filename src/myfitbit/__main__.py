@@ -16,7 +16,7 @@ import sys
 import datetime
 from docopt import docopt
 
-import setup
+import myfitbit.setup as setup
 
 
 def main(args=None):
