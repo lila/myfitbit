@@ -2,11 +2,13 @@
 """
 Usage:
   myfitbit [options] steps [--range=<period>]
+  myfitbit [options] heartrate [--range=<period>]
   myfitbit -h | --help | --version
 
 Options:
   --range=period    either 1d, 1w, or 1m [default: 1d]
   --debug           Show debug info
+  --raw             return the raw json packet
   -h --help         Show this screen.
   --version         Show version.
 """
@@ -32,10 +34,22 @@ def main(args=None):
 
     today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
 
-    steps = fitbit.time_series(
-        "activities/steps", base_date=today, period=arguments["--range"]
-    )
-    print(sum(int(d["value"]) for d in steps["activities-steps"]))
+    if arguments["steps"]:
+        steps = fitbit.time_series(
+            "activities/steps", base_date=today, period=arguments["--range"]
+        )
+        if arguments["--raw"]:
+            print(steps["activities-steps"])
+        else:
+            print(sum(int(d["value"]) for d in steps["activities-steps"]))
+    
+    elif arguments["heartrate"]:
+        hr = fitbit.intraday_time_series('activities/heart', base_date=today, detail_level='1sec')
+
+        if arguments["--raw"]:
+            print(hr['activities-heart-intraday']['dataset'])
+        else:
+            print(hr['activities-heart-intraday']['dataset'])
 
 
 def do_main():
