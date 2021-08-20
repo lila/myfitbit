@@ -2,11 +2,12 @@
 """
 Usage:
   myfitbit [options] steps [--range=<period>]
-  myfitbit [options] heartrate [--range=<period>]
+  myfitbit [options] heartrate [--day=<day>]
   myfitbit -h | --help | --version
 
 Options:
   --range=period    either 1d, 1w, or 1m [default: 1d]
+  --day=day         string in the form %Y-%m-%d
   --debug           Show debug info
   --raw             return the raw json packet
   -h --help         Show this screen.
@@ -16,10 +17,10 @@ Options:
 import os
 import sys
 import datetime
+import json
 from docopt import docopt
 
-import myfitbit.setup as setup
-
+from .setup import setup
 
 def main(args=None):
 
@@ -30,9 +31,12 @@ def main(args=None):
         print(__doc__)
         quit()
 
-    fitbit = setup.setup()
+    fitbit = setup(debug=arguments["--debug"])
 
-    today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
+    if arguments["--day"]:
+        today = arguments["--day"]
+    else:
+        today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
 
     if arguments["steps"]:
         steps = fitbit.time_series(
@@ -47,9 +51,9 @@ def main(args=None):
         hr = fitbit.intraday_time_series('activities/heart', base_date=today, detail_level='1sec')
 
         if arguments["--raw"]:
-            print(hr['activities-heart-intraday']['dataset'])
+            print(json.dumps(hr))
         else:
-            print(hr['activities-heart-intraday']['dataset'])
+            print(json.dumps(hr['activities-heart-intraday']['dataset']))
 
 
 def do_main():

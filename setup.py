@@ -23,8 +23,7 @@ setup(
     name="myfitbit",
     description="returns my steps",
     version="1.0.0",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    packages=find_packages(),
     install_requires=install_requires,
     python_requires=">=3.6, <4",  # any python greater than 2.7
     entry_points="""

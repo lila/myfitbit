@@ -5,7 +5,7 @@ import json
 from fitbit.api import Fitbit
 
 # internal imports
-import myfitbit.oauthserver as oauthserver
+from .oauthserver import OAuth2Server
 
 # Environment constants
 FITBIT_DIR = "./"
@@ -26,8 +26,13 @@ def savetoken(dict):
         json.dump(credentials_as_dict, outfile, indent=4)
 
 
-def setup():
+def setup(debug=False):
+    if debug:
+        print("myfitbit setup:")
+    
     if not os.path.exists(FITBIT_DIR):
+        if debug: 
+            print(f"creating: ${FITBIT_DIR}")
         os.makedirs(FITBIT_DIR)
 
     if not os.path.exists(KEYS_FILE):
@@ -39,7 +44,7 @@ def setup():
 
     with open(KEYS_FILE) as f:
         client = json.load(f)
-
+        
     if os.path.exists(TOKEN_FILE):
         try:
             with open(TOKEN_FILE) as f:
@@ -47,8 +52,11 @@ def setup():
         except:
             pass
 
+    if debug:
+        print(f"client = ${client}")
+    
     if "access_token" not in client:
-        server = oauthserver.OAuth2Server(**client)
+        server = OAuth2Server(**client)
         server.browser_authorize()
         profile = server.fitbit.user_profile_get()
         print(
