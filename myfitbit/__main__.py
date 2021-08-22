@@ -10,6 +10,7 @@ Options:
   --day=day         string in the form %Y-%m-%d
   --debug           Show debug info
   --raw             return the raw json packet
+  --omh             convert data into openmhealth standard
   -h --help         Show this screen.
   --version         Show version.
 """
@@ -18,7 +19,9 @@ import os
 import sys
 import datetime
 import json
-from docopt import docopt
+import requests
+from codetiming import Timer
+from docopt import docopt 
 
 from .setup import setup
 
@@ -32,6 +35,16 @@ def main(args=None):
         quit()
 
     fitbit = setup(debug=arguments["--debug"])
+    
+    t = Timer()
+    t.start()
+
+    if arguments["--omh"]:
+        if os.environ['OPENMHEALTH_ENDPOINT']:
+            urlhost = os.environ['OPENMHEALTH_ENDPOINT']
+        else:
+            print("set environment variable OPENMHEALTH_ENDPOINT to convert from fitbit to openmhealth standard")
+            quit()
 
     if arguments["--day"]:
         today = arguments["--day"]
@@ -51,9 +64,18 @@ def main(args=None):
         hr = fitbit.intraday_time_series('activities/heart', base_date=today, detail_level='1sec')
 
         if arguments["--raw"]:
-            print(json.dumps(hr))
+            print(json.dumps(hr, indent=4))
+        elif arguments["--omh"]:
+            url = urlhost + "/heart-rate/intraday/"
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            req = requests.post(url = url, data = json.dumps(hr), headers=headers)
+            print(json.dumps(json.loads(req.text), indent=4))
         else:
             print(json.dumps(hr['activities-heart-intraday']['dataset']))
+    
+    t.stop()
 
 
 def do_main():

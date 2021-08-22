@@ -4,3 +4,5 @@ fitbit
 cherry
 cherrypy
 pandas
+requests
+codetiming
