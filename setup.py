@@ -31,7 +31,6 @@ setup(
         myfitbit=myfitbit.__main__:do_main
     """,
     author="karan bhatia",
-    keyword="fitbit",
     long_description=README,
     long_description_content_type="text/markdown",
     license="MIT",

@@ -6,3 +6,4 @@ cherrypy
 pandas
 requests
 codetiming
+docopt
