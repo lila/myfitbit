@@ -18,7 +18,7 @@ class OAuth2Server:
         access_token=None,
         refresh_token=None,
         expires_at=None,
-        redirect_uri="http://127.0.0.1:8080/",
+        redirect_uri="http://127.0.0.1:5000/services/fitbit/authorized",
     ):
         """ Initialize the FitbitOauth2Client """
         self.success_html = """
@@ -58,6 +58,10 @@ class OAuth2Server:
         )
 
         cherrypy.quickstart(self)
+
+    def _cp_dispatch(self, vpath):
+        vpath.clear()
+        return self
 
     @cherrypy.expose
     def index(self, state, code=None, error=None):
