@@ -1,13 +1,15 @@
 import sys
-import cherrypy
 import threading
 import traceback
 import webbrowser
-
 from urllib.parse import urlparse
-from base64 import b64encode
+
+import cherrypy
 from fitbit.api import Fitbit
-from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
+from oauthlib.oauth2.rfc6749.errors import (
+    MismatchingStateError,
+    MissingTokenError,
+)
 
 
 class OAuth2Server:
@@ -20,7 +22,7 @@ class OAuth2Server:
         expires_at=None,
         redirect_uri="http://127.0.0.1:5000/services/fitbit/authorized",
     ):
-        """ Initialize the FitbitOauth2Client """
+        """Initialize the FitbitOauth2Client"""
         self.success_html = """
             <h1>You are now authorized to access the Fitbit API!</h1>
             <br/><h3>You can close this window</h3>"""
@@ -92,6 +94,6 @@ class OAuth2Server:
         return self.failure_html % (message, tb_html)
 
     def _shutdown_cherrypy(self):
-        """ Shutdown cherrypy in one second, if it's running """
+        """Shutdown cherrypy in one second, if it's running"""
         if cherrypy.engine.state == cherrypy.engine.states.STARTED:
             threading.Timer(1, cherrypy.engine.exit).start()

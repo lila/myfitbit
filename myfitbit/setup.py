@@ -1,6 +1,6 @@
+import json
 import os
 import sys
-import json
 
 from fitbit.api import Fitbit
 
@@ -15,13 +15,13 @@ KEYS_FILE = os.path.join(FITBIT_DIR, "client_id.json")
 TOKEN_FILE = os.path.join(FITBIT_DIR, "user_token.json")
 
 
-def savetoken(dict):
+def savetoken(settings):
     print("refreshing token")
     with open(TOKEN_FILE, "w") as outfile:
         credentials_as_dict = {
-            "access_token": dict["access_token"],
-            "refresh_token": dict["refresh_token"],
-            "expires_at": dict["expires_at"],
+            "access_token": settings["access_token"],
+            "refresh_token": settings["refresh_token"],
+            "expires_at": settings["expires_at"],
         }
         json.dump(credentials_as_dict, outfile, indent=4)
 
@@ -29,22 +29,24 @@ def savetoken(dict):
 def setup(debug=False):
     if debug:
         print("myfitbit setup:")
-    
+
     if not os.path.exists(FITBIT_DIR):
-        if debug: 
+        if debug:
             print(f"creating: ${FITBIT_DIR}")
         os.makedirs(FITBIT_DIR)
 
     if not os.path.exists(KEYS_FILE):
         print(f"No config file found at : {KEYS_FILE}")
-        print("Creating empty file.  Fill in with your clientID and client_secret")
+        print(
+            "Creating empty file.  Fill in with your clientID and client_secret"
+        )
         with open(KEYS_FILE, "w") as outfile:
             json.dump({"client_id": "", "client_secret": ""}, outfile, indent=4)
         sys.exit(1)
 
     with open(KEYS_FILE) as f:
         client = json.load(f)
-        
+
     if os.path.exists(TOKEN_FILE):
         try:
             with open(TOKEN_FILE) as f:
@@ -54,7 +56,7 @@ def setup(debug=False):
 
     if debug:
         print(f"client = ${client}")
-    
+
     if "access_token" not in client:
         server = OAuth2Server(**client)
         server.browser_authorize()
